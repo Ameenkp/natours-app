@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "types": ["node" , "express"],
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "./dist", // Output directory for compiled JavaScript files
+    "rootDir": "./", // Source directory for TypeScript files
+    "removeComments": true,
+    "strict": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["server.ts", "src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+
