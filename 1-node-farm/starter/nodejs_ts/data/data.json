@@ -53,5 +53,60 @@
     "price": "2.00",
     "organic": false,
     "description": "Also known as maize, corn is one of the most popular cereal grains in the world. Popcorn and sweet corn are commonly eaten varieties, but refined corn products are also widely consumed, frequently as ingredients in foods. These include tortillas, tortilla chips, polenta, cornmeal, corn flour, corn syrup, and corn oil. Whole-grain corn is as healthy as any cereal grain, rich in fiber and many vitamins, minerals, and antioxidants."
+  },
+  {
+    "id": 5,
+    "productName": "Red Bell Peppers",
+    "image": "🌶️",
+    "from": "Spain",
+    "nutrients": "Vitamin C, Vitamin A",
+    "quantity": "4 🌶️",
+    "price": "4.50",
+    "organic": true,
+    "description": "Red bell peppers are a tasty vegetable that can be enjoyed cooked or raw. They are low in calories and exceptionally rich in vitamin C and other antioxidants, making them an excellent addition to a healthy diet. Red bell peppers also contain a decent amount of fiber."
+  },
+  {
+    "id": 6,
+    "productName": "Cherry Tomatoes",
+    "image": "🍅",
+    "from": "Italy",
+    "nutrients": "Vitamin C, Lycopene",
+    "quantity": "250g",
+    "price": "4.00",
+    "organic": false,
+    "description": "Cherry tomatoes are small, round, and typically red, but they can also come in a variety of colors including yellow, orange, and green. They are a rich source of vitamins, especially vitamin C and lycopene, which is known for its potential health benefits."
+  },
+  {
+    "id": 7,
+    "productName": "Golden Apples",
+    "image": "🍏",
+    "from": "United States",
+    "nutrients": "Vitamin C, Dietary Fiber",
+    "quantity": "6 🍏",
+    "price": "5.50",
+    "organic": true,
+    "description": "Golden Delicious apples are known for their sweet and mellow flavor. They are a good source of vitamin C and dietary fiber. These apples are excellent for snacking, salads, and baking."
+  },
+  {
+    "id": 8,
+    "productName": "Fresh Pineapple",
+    "image": "🍍",
+    "from": "Costa Rica",
+    "nutrients": "Vitamin C, Manganese",
+    "quantity": "1 🍍",
+    "price": "7.00",
+    "organic": false,
+    "description": "Pineapple is a tropical fruit that is not only delicious but also packed with nutrients. It is a good source of vitamin C, manganese, and contains bromelain, an enzyme with potential health benefits."
+  },
+  {
+    "id": 9,
+    "productName": "Ripe Mangoes",
+    "image": "🥭",
+    "from": "India",
+    "nutrients": "Vitamin A, Vitamin C",
+    "quantity": "3 🥭",
+    "price": "6.00",
+    "organic": true,
+    "description": "Mangoes are often called the 'king of fruits.' They are not only delicious but also rich in vitamins, minerals, and antioxidants. Mangoes are a good source of vitamin A, vitamin C, and dietary fiber."
   }
 ]
