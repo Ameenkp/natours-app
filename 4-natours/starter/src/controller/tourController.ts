@@ -5,83 +5,63 @@ import fs from 'fs';
 import { promisify } from 'util';
 
 const dataFilePath = path.join(__dirname, '../../dev-data/data/tours.json');
-const tours: Tour[] = JSON.parse(fs.readFileSync(dataFilePath, 'utf-8'));
 const writeFilAsync = promisify(fs.writeFile);
 
-/////////////////////////////////////////////
-/// MIDDLEWARE TO CHECK ID PARAM
-const checkId = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-  val: string,
-) => {
-  console.log('Tour id is : ', val);
-  if (!tours.find((el) => el._id === val)) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
+export class TourController {
+  private tours: Tour[];
+
+  constructor() {
+    console.log('TourController constructor executed');
+    this.tours = JSON.parse(fs.readFileSync(dataFilePath, 'utf-8'));
   }
-  next();
-};
 
-const getAllTour = (req: Request, res: Response, next: NextFunction) => {
-  try {
-    res.status(200).json({
-      status: 'success',
-      results: tours.length,
-      requestedAt: req.body.requestedAt,
-      data: {
-        tours,
-      },
-    });
-  } catch (error) {
-    next(error);
+  private async writeFileAsync() {
+    try {
+      await writeFilAsync(dataFilePath, JSON.stringify(this.tours));
+      console.log('success 🚀');
+    } catch (error) {
+      throw new Error((error as Error).message);
+    }
   }
-};
 
-const createTour = (req: Request, res: Response, next: NextFunction) => {
-  const newId = tours[tours.length - 1]._id + 1;
-  const newTour = Object.assign({ _id: newId }, req.body);
-  tours.push(newTour);
+  // Middleware to check ID param
+  checkId(req: Request, res: Response, next: NextFunction, val: string) {
+    console.log('Tour id is : ', val);
+    if (!this.tours.find((el) => el._id === val)) {
+      return res.status(404).json({
+        status: 'failed',
+        message: 'Invalid ID',
+      });
+    }
+    next();
+  }
 
-  writeFilAsync(dataFilePath, JSON.stringify(tours))
-    .then(() => {
-      res.status(201).json({
+  getAllTour(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.status(200).json({
         status: 'success',
+        results: this.tours.length,
+        requestedAt: req.body.requestedAt,
         data: {
-          tour: newTour,
+          tours: this.tours,
         },
       });
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
+    } catch (error) {
+      next(error);
+    }
+  }
 
-const getTourById = (req: Request, res: Response, next: NextFunction) => {
-  console.log(req.params.id);
-  console.log(req.params);
-  const tourById = tours.find((tour) => tour._id === req.params.id);
-  res.status(200).json({
-    status: 'success',
-    data: { tour: tourById },
-  });
-};
+  createTour(req: Request, res: Response, next: NextFunction) {
+    const newId = this.tours[this.tours.length - 1]._id + 1;
+    const newTour = Object.assign({ _id: newId }, req.body);
+    this.tours.push(newTour);
 
-const updateTourById = (req: Request, res: Response, next: NextFunction) => {
-  const tourIndex = tours.findIndex((tour) => tour._id === req.params.id);
-
-  if (tourIndex !== -1) {
-    tours[tourIndex].name = req.body.name;
-
-    writeFileASync()
+    this.writeFileAsync()
       .then(() => {
-        res.status(200).json({
+        res.status(201).json({
           status: 'success',
           data: {
-            tour: tours[tourIndex],
+            tour: newTour,
           },
         });
       })
@@ -89,42 +69,49 @@ const updateTourById = (req: Request, res: Response, next: NextFunction) => {
         next(err);
       });
   }
-};
 
-const deleteTourById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const tourIndex = tours.findIndex((tour) => tour._id === req.params.id);
-    if (tourIndex !== -1) {
-      tours.splice(tourIndex, 1);
-      await writeFileASync();
-      res.status(204).json({
-        status: 'success',
-        data: null,
-      });
-    }
-  } catch (error) {
-    next(error);
+  getTourById(req: Request, res: Response, next: NextFunction) {
+    const tourById = this.tours.find((tour) => tour._id === req.params.id);
+    res.status(200).json({
+      status: 'success',
+      data: { tour: tourById },
+    });
   }
-};
 
-async function writeFileASync() {
-  try {
-    await writeFilAsync(dataFilePath, JSON.stringify(tours));
-    console.log('success 🚀');
-  } catch (error) {
-    throw new Error((error as Error).message);
+  updateTourById(req: Request, res: Response, next: NextFunction) {
+    const tourIndex = this.tours.findIndex((tour) => tour._id === req.params.id);
+
+    if (tourIndex !== -1) {
+      this.tours[tourIndex].name = req.body.name;
+
+      this.writeFileAsync()
+        .then(() => {
+          res.status(200).json({
+            status: 'success',
+            data: {
+              tour: this.tours[tourIndex],
+            },
+          });
+        })
+        .catch((err) => {
+          next(err);
+        });
+    }
+  }
+
+  async deleteTourById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const tourIndex = this.tours.findIndex((tour) => tour._id === req.params.id);
+      if (tourIndex !== -1) {
+        this.tours.splice(tourIndex, 1);
+        await this.writeFileAsync();
+        res.status(204).json({
+          status: 'success',
+          data: null,
+        });
+      }
+    } catch (error) {
+      next(error);
+    }
   }
 }
-
-export {
-  getAllTour,
-  createTour,
-  getTourById,
-  updateTourById,
-  deleteTourById,
-  checkId,
-};

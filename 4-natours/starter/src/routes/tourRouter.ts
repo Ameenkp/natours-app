@@ -1,26 +1,37 @@
-import express, { Router } from 'express';
-import {
-  createTour,
-  deleteTourById,
-  getAllTour,
-  getTourById,
-  updateTourById,
-  checkId,
-} from '../controller/tourController';
+import express, { Router, Request, Response, NextFunction } from 'express';
+import { TourController } from '../controller/tourController';
 
-const tourRouter: Router = express.Router();
+class TourRouter {
+  private readonly router: Router;
+  private tourController: TourController;
 
-tourRouter.param('id', checkId);
+  constructor() {
+    console.log('TourRouter constructor executed');
+    this.router = express.Router();
+    this.tourController = new TourController();
+    this.config();
+  }
 
-tourRouter
-  .route('/')
-  .get(getAllTour)
-  .post(createTour);
+  private config(): void {
+    this.router.param('id', (req, res, next, val) => {
+      this.tourController.checkId(req, res, next, val);
+    });
 
-tourRouter
-  .route('/:id')
-  .get(getTourById)
-  .patch(updateTourById)
-  .delete(deleteTourById);
+    this.router
+      .route('/')
+      .get((req, res, next) => this.tourController.getAllTour(req, res, next))
+      .post((req, res, next) => this.tourController.createTour(req, res, next));
 
-export default tourRouter;
+    this.router
+      .route('/:id')
+      .get((req, res, next) => this.tourController.getTourById(req, res, next))
+      .patch((req, res, next) => this.tourController.updateTourById(req, res, next))
+      .delete((req, res, next) => this.tourController.deleteTourById(req, res, next));
+  }
+
+  public getRouter(): Router {
+    return this.router;
+  }
+}
+
+export default new TourRouter().getRouter();

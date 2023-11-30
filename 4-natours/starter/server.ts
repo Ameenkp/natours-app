@@ -1,12 +1,6 @@
+import App from "./src/app";
 
-import app from "./src/app";
+const app = new App();
 
-
-///////////////////////////
-/// START SERVER
-
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-  console.log('🐱🐱🐱🐱🐱🐱🐱🐱');
-});
+// Start the server on port 3000
+app.start(3000);
