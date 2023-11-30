@@ -1,4 +1,4 @@
-import express, { Router, Request, Response, NextFunction } from 'express';
+import express, { Router } from 'express';
 import { TourController } from '../controller/tourController';
 
 class TourRouter {
