@@ -3,12 +3,14 @@ import path from 'path';
 import { Tour } from '../model/Tour';
 import fs from 'fs';
 import { promisify } from 'util';
+import { CommonMiddleware } from '../middlewear/baseMiddleware';
 
 const dataFilePath = path.join(__dirname, '../../dev-data/data/tours.json');
 const writeFilAsync = promisify(fs.writeFile);
 
 export class TourController {
   private tours: Tour[];
+  private commonMiddleware = CommonMiddleware;
 
   constructor() {
     console.log('TourController constructor executed');
@@ -26,14 +28,7 @@ export class TourController {
 
   // Middleware to check ID param
   checkId(req: Request, res: Response, next: NextFunction, val: string) {
-    console.log('Tour id is : ', val);
-    if (!this.tours.find((el) => el._id === val)) {
-      return res.status(404).json({
-        status: 'failed',
-        message: 'Invalid ID',
-      });
-    }
-    next();
+    this.commonMiddleware.checkId(req, res, next, this.tours, 'tour', val);
   }
 
   getAllTour(req: Request, res: Response, next: NextFunction) {
@@ -51,23 +46,23 @@ export class TourController {
     }
   }
 
-  createTour(req: Request, res: Response, next: NextFunction) {
-    const newId = this.tours[this.tours.length - 1]._id + 1;
-    const newTour = Object.assign({ _id: newId }, req.body);
-    this.tours.push(newTour);
+  async createTour(req: Request, res: Response, next: NextFunction) {
+    try {
+      const newId = this.tours[this.tours.length - 1]._id + 1;
+      const newTour = Object.assign({ _id: newId }, req.body);
+      this.tours.push(newTour);
 
-    this.writeFileAsync()
-      .then(() => {
-        res.status(201).json({
-          status: 'success',
-          data: {
-            tour: newTour,
-          },
-        });
-      })
-      .catch((err) => {
-        next(err);
+      await this.writeFileAsync();
+
+      res.status(201).json({
+        status: 'success',
+        data: {
+          tour: newTour,
+        },
       });
+    } catch (err) {
+      next(err);
+    }
   }
 
   getTourById(req: Request, res: Response, next: NextFunction) {

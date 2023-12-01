@@ -2,10 +2,12 @@ import { NextFunction, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
 import User from '../model/User';
+import { CommonMiddleware } from "../middlewear/baseMiddleware";
 
 export class UserController {
-  private readonly userDataPath: string = path.join(__dirname, '../../dev-data/data/users.json');
+  private userDataPath: string = path.join(__dirname, '../../dev-data/data/users.json');
   private userData: User[];
+  private commonMiddleware = CommonMiddleware;
 
   constructor() {
     console.log('UserController constructor executed');
@@ -13,15 +15,7 @@ export class UserController {
   }
 
   checkId(req: Request, res: Response, next: NextFunction, val: string): void {
-    console.log('User id is: ', val);
-    if (!this.userData.find((el) => el._id === val)) {
-      res.status(404).json({
-        status: 'failed',
-        message: 'Invalid ID',
-      });
-    } else {
-      next();
-    }
+    this.commonMiddleware.checkId(req, res, next, this.userData, 'user', val);
   }
 
   getAllUser(req: Request, res: Response, next: NextFunction): void {

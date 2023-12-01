@@ -303,5 +303,49 @@
       { "description": "New Location 2", "type": "Point", "coordinates": [41.8781, -87.6298], "day": 3 }
     ],
     "requestedAt": "2023-11-30T21:53:23.773Z"
+  },
+  {
+    "_id": "5c88fa8cf4afda39709c296c111111",
+    "startLocation": { "description": "New Start Location test 6", "type": "Point", "coordinates": [40.7128, -74.006], "address": "New Address, City, Country" },
+    "ratingsAverage": 4.5,
+    "ratingsQuantity": 10,
+    "images": ["tour-new-1.jpg", "tour-new-2.jpg"],
+    "startDates": ["2023-01-15T09:00:00.000Z", "2023-02-20T09:00:00.000Z"],
+    "name": "New Tour",
+    "duration": 8,
+    "maxGroupSize": 20,
+    "difficulty": "medium",
+    "guides": ["guide-id-1", "guide-id-2"],
+    "price": 799,
+    "summary": "A fantastic new tour",
+    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    "imageCover": "tour-new-cover.jpg",
+    "locations": [
+      { "description": "New Location 1", "type": "Point", "coordinates": [40.7128, -74.006], "day": 1 },
+      { "description": "New Location 2", "type": "Point", "coordinates": [41.8781, -87.6298], "day": 3 }
+    ],
+    "requestedAt": "2023-12-01T12:04:15.093Z"
+  },
+  {
+    "_id": "5c88fa8cf4afda39709c296c1111111",
+    "startLocation": { "description": "New Start Location test 6", "type": "Point", "coordinates": [40.7128, -74.006], "address": "New Address, City, Country" },
+    "ratingsAverage": 4.5,
+    "ratingsQuantity": 10,
+    "images": ["tour-new-1.jpg", "tour-new-2.jpg"],
+    "startDates": ["2023-01-15T09:00:00.000Z", "2023-02-20T09:00:00.000Z"],
+    "name": "New Tour",
+    "duration": 8,
+    "maxGroupSize": 20,
+    "difficulty": "medium",
+    "guides": ["guide-id-1", "guide-id-2"],
+    "price": 799,
+    "summary": "A fantastic new tour",
+    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    "imageCover": "tour-new-cover.jpg",
+    "locations": [
+      { "description": "New Location 1", "type": "Point", "coordinates": [40.7128, -74.006], "day": 1 },
+      { "description": "New Location 2", "type": "Point", "coordinates": [41.8781, -87.6298], "day": 3 }
+    ],
+    "requestedAt": "2023-12-01T12:24:57.196Z"
   }
 ]
