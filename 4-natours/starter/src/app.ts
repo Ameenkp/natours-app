@@ -1,33 +1,50 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import errorHandler from './middlewear/errorMiddlewear';
 import morgan from 'morgan';
 import tourRouter from './routes/tourRouter';
 import userRouter from './routes/userRouter';
 
-const app = express();
+class App {
+  private app: Application;
 
-////////////////////////////////
-// 1. MIDDLEWARE
-app.use(morgan('dev'));
-app.use(express.json());
+  constructor() {
+    console.log('Express app has been created 🎊');
+    this.app = express();
+    this.config();
+    this.middlewares();
+    this.routeMountings();
+  }
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-  console.log('Custom middleware 🦕');
-  next();
-});
+  private config(): void {
+    this.app.use(morgan('dev'));
+    this.app.use(express.json());
+  }
 
-app.use((req, res, next) => {
-  req.body.requestedAt = new Date().toISOString();
-  console.log(req.body.requestedAt);
-  next();
-});
+  private middlewares(): void {
+    this.app.use((req: Request, res: Response, next: NextFunction) => {
+      console.log('Custom middleware 🦕');
+      next();
+    });
 
-app.use(errorHandler);
+    this.app.use((req, res, next) => {
+      req.body.requestedAt = new Date().toISOString();
+      console.log(req.body.requestedAt);
+      next();
+    });
 
-////////////////////////////////
-// 2. ROUTER MOUNTINGS
+    this.app.use(errorHandler);
+  }
 
-app.use('/api/v1/tour', tourRouter);
-app.use('/api/v1/user', userRouter);
+  private routeMountings(): void {
+    this.app.use('/api/v1/tour', tourRouter);
+    this.app.use('/api/v1/user', userRouter);
+  }
 
-export default app;
+  public start(port: number): void {
+    this.app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  }
+}
+
+export default App;

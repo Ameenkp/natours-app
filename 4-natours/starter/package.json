@@ -11,7 +11,7 @@
     "dev": "concurrently \"npm run start\" \"npm run build -- --watch\"",
     "start-dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' server.ts",
     "lint": "eslint 'src/**/*.ts'",
-    "format": "prettier --write \"src/**/*.ts\" \"./dev-data/**/*.json\"\n",
+    "format": "prettier --config .prettierrc --write 'src/**/*.ts' 'dev-data/data/**/*.json'",
     "debug": "tsc --watch & nodemon --inspect-brk=9226 --ext js,html /dist/index.js",
     "test": "jest"
   },

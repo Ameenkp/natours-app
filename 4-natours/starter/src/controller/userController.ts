@@ -1,42 +1,65 @@
 import { NextFunction, Request, Response } from 'express';
-import path from "path";
-import fs from "fs";
-import User from "../model/User";
+import path from 'path';
+import fs from 'fs';
+import User from '../model/User';
+import { CommonMiddleware } from "../middlewear/baseMiddleware";
 
-const userDataPath  = path.join(__dirname , '../../dev-data/data/users.json');
-const dataString = fs.readFileSync( userDataPath , 'utf-8');
-const data : User[]= JSON.parse(dataString);
+export class UserController {
+  private userDataPath: string = path.join(__dirname, '../../dev-data/data/users.json');
+  private userData: User[];
+  private commonMiddleware = CommonMiddleware;
 
+  constructor() {
+    console.log('UserController constructor executed');
+    this.userData = JSON.parse(fs.readFileSync(this.userDataPath, 'utf-8'));
+  }
 
-const getAllUser = (req: Request, res: Response, next: NextFunction) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
-const createUser = (req: Request, res: Response, next: NextFunction) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
-const getUserById = (req: Request, res: Response, next: NextFunction) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
-const updateUserById = (req: Request, res: Response, next: NextFunction) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
-const deleteUserById = (req: Request, res: Response, next: NextFunction) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not yet defined!',
-  });
-};
+  checkId(req: Request, res: Response, next: NextFunction, val: string): void {
+    this.commonMiddleware.checkId(req, res, next, this.userData, 'user', val);
+  }
 
-export { getAllUser, createUser, getUserById, updateUserById, deleteUserById };
+  getAllUser(req: Request, res: Response, next: NextFunction): void {
+    try {
+      res.status(200).json({
+        status: 'success',
+        results: this.userData.length,
+        data: {
+          users: this.userData,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  createUser(req: Request, res: Response, next: NextFunction): void {
+    res.status(500).json({
+      status: 'error',
+      message: 'This route is not yet defined!',
+    });
+  }
+
+  getUserById(req: Request, res: Response, next: NextFunction): void {
+    const user = this.userData.find((user) => user._id === req.params.id);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        user,
+      },
+    });
+  }
+
+  updateUserById(req: Request, res: Response, next: NextFunction): void {
+    res.status(500).json({
+      status: 'error',
+      message: 'This route is not yet defined!',
+    });
+  }
+
+  deleteUserById(req: Request, res: Response, next: NextFunction): void {
+    res.status(500).json({
+      status: 'error',
+      message: 'This route is not yet defined!',
+    });
+  }
+}
