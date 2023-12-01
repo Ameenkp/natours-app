@@ -4,17 +4,19 @@ import { Tour } from '../model/Tour';
 import fs from 'fs';
 import { promisify } from 'util';
 import { CommonMiddleware } from '../middlewear/baseMiddleware';
+import { ValidationError } from '../error/validationError';
 
 const dataFilePath = path.join(__dirname, '../../dev-data/data/tours.json');
 const writeFilAsync = promisify(fs.writeFile);
 
 export class TourController {
   private tours: Tour[];
-  private commonMiddleware = CommonMiddleware;
+  private commonMiddleware: CommonMiddleware;
 
   constructor() {
     console.log('TourController constructor executed');
     this.tours = JSON.parse(fs.readFileSync(dataFilePath, 'utf-8'));
+    this.commonMiddleware = new CommonMiddleware();
   }
 
   private async writeFileAsync() {
@@ -48,6 +50,8 @@ export class TourController {
 
   async createTour(req: Request, res: Response, next: NextFunction) {
     try {
+      this.validateTour(req, res, next);
+
       const newId = this.tours[this.tours.length - 1]._id + 1;
       const newTour = Object.assign({ _id: newId }, req.body);
       this.tours.push(newTour);
@@ -73,24 +77,19 @@ export class TourController {
     });
   }
 
-  updateTourById(req: Request, res: Response, next: NextFunction) {
-    const tourIndex = this.tours.findIndex((tour) => tour._id === req.params.id);
-
-    if (tourIndex !== -1) {
-      this.tours[tourIndex].name = req.body.name;
-
-      this.writeFileAsync()
-        .then(() => {
-          res.status(200).json({
-            status: 'success',
-            data: {
-              tour: this.tours[tourIndex],
-            },
-          });
-        })
-        .catch((err) => {
-          next(err);
-        });
+  async updateTourById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const tourIndex = this.tours.findIndex((tour) => tour._id === req.params.id);
+      this.tours[tourIndex] = Object.assign(this.tours[tourIndex], req.body);
+      await this.writeFileAsync();
+      res.status(200).json({
+        status: 'success',
+        data: {
+          tour: this.tours[tourIndex],
+        },
+      });
+    } catch (error) {
+      next(error);
     }
   }
 
@@ -108,5 +107,15 @@ export class TourController {
     } catch (error) {
       next(error);
     }
+  }
+
+  private validateTour(req: Request, res: Response, next: NextFunction) {
+    const tourData: Tour = req.body;
+    console.log(tourData.name, tourData.difficulty, tourData.duration);
+    if (!tourData.name || !tourData.difficulty || !tourData.duration) {
+      console.error('Validation failed: All fields are required ! 🦕');
+      throw new ValidationError('All fields are required ! 🦕');
+    }
+    next();
   }
 }

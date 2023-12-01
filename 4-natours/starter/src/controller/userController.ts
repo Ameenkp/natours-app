@@ -2,16 +2,17 @@ import { NextFunction, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
 import User from '../model/User';
-import { CommonMiddleware } from "../middlewear/baseMiddleware";
+import { CommonMiddleware } from '../middlewear/baseMiddleware';
 
 export class UserController {
   private userDataPath: string = path.join(__dirname, '../../dev-data/data/users.json');
   private userData: User[];
-  private commonMiddleware = CommonMiddleware;
+  private commonMiddleware: CommonMiddleware;
 
   constructor() {
     console.log('UserController constructor executed');
     this.userData = JSON.parse(fs.readFileSync(this.userDataPath, 'utf-8'));
+    this.commonMiddleware = new CommonMiddleware();
   }
 
   checkId(req: Request, res: Response, next: NextFunction, val: string): void {
