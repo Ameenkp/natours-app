@@ -1,18 +1,22 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
-import errorHandler from './middlewear/errorMiddlewear';
 import morgan from 'morgan';
 import tourRouter from './routes/tourRouter';
 import userRouter from './routes/userRouter';
+import { ErrorHandler } from './middlewear/errorMiddlewear';
+import { ValidationError } from './error/validationError';
 
 class App {
   private app: Application;
+  private errorHandler: ErrorHandler;
 
   constructor() {
     console.log('Express app has been created 🎊');
     this.app = express();
+    this.errorHandler = new ErrorHandler();
     this.config();
     this.middlewares();
     this.routeMountings();
+    this.errorMiddleware();
   }
 
   private config(): void {
@@ -31,13 +35,20 @@ class App {
       console.log(req.body.requestedAt);
       next();
     });
-
-    this.app.use(errorHandler);
   }
 
   private routeMountings(): void {
     this.app.use('/api/v1/tour', tourRouter);
     this.app.use('/api/v1/user', userRouter);
+  }
+
+  private errorMiddleware(): void {
+    this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+      if (err instanceof ValidationError) {
+        return this.errorHandler.handleValidationError(err, res, next);
+      }
+      return this.errorHandler.handleGenericError(err, res, next);
+    });
   }
 
   public start(port: number): void {

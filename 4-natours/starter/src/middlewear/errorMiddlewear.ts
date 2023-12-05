@@ -1,11 +1,20 @@
-// errorMiddleware.ts
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
+import { ValidationError } from '../error/validationError';
 
-const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('Error handling middleware: ', err);
-
-  // Customize the error response based on your requirements
-  res.status(500).json({ error: 'Internal Server Error' });
-};
-
-export default errorHandler;
+export class ErrorHandler {
+  handleGenericError(err: Error, res: Response, next: NextFunction) {
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: err.message,
+    });
+    next();
+  }
+  handleValidationError(err: ValidationError, res: Response, next: NextFunction) {
+    console.log(err.stack);
+    res.status(err.status).json({
+      error: err.name,
+      message: err.message,
+    });
+    next();
+  }
+}
