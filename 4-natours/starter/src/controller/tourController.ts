@@ -50,15 +50,13 @@ export class TourController {
 
   async createTour(req: Request, res: Response, next: NextFunction) {
     try {
-      this.validateTour(req, res, next);
-
       const newId = this.tours[this.tours.length - 1]._id + 1;
       const newTour = Object.assign({ _id: newId }, req.body);
       this.tours.push(newTour);
 
       await this.writeFileAsync();
 
-      res.status(201).json({
+       res.status(201).json({
         status: 'success',
         data: {
           tour: newTour,
@@ -109,13 +107,11 @@ export class TourController {
     }
   }
 
-  private validateTour(req: Request, res: Response, next: NextFunction) {
+  validateTour(req: Request, res: Response, next: NextFunction) {
     const tourData: Tour = req.body;
     console.log(tourData.name, tourData.difficulty, tourData.duration);
     if (!tourData.name || !tourData.difficulty || !tourData.duration) {
-      console.error('Validation failed: All fields are required ! 🦕');
       throw new ValidationError('All fields are required ! 🦕');
     }
-    next();
   }
 }

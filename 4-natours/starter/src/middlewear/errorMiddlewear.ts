@@ -1,4 +1,4 @@
-import {  Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { ValidationError } from '../error/validationError';
 
 export class ErrorHandler {
@@ -10,8 +10,9 @@ export class ErrorHandler {
     next();
   }
   handleValidationError(err: ValidationError, res: Response, next: NextFunction) {
+    console.log(err.stack);
     res.status(err.status).json({
-      error: 'Validation Error',
+      error: err.name,
       message: err.message,
     });
     next();

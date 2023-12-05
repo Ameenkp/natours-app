@@ -20,7 +20,14 @@ class TourRouter {
     this.router
       .route('/')
       .get((req, res, next) => this.tourController.getAllTour(req, res, next))
-      .post((req, res, next) => this.tourController.createTour(req, res, next));
+      .post(async (req, res, next) => {
+        try {
+          this.tourController.validateTour(req, res, next);
+          await this.tourController.createTour(req, res, next);
+        } catch (error) {
+          next(error);
+        }
+      });
 
     this.router
       .route('/:id')
