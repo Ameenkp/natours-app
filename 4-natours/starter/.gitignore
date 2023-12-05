@@ -30,3 +30,6 @@ yarn-error.log
 
 # Windows
 Thumbs.db
+
+# Ignore package-lock.json
+package-lock.json

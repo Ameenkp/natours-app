@@ -4,6 +4,7 @@ import tourRouter from './routes/tourRouter';
 import userRouter from './routes/userRouter';
 import { ErrorHandler } from './middlewear/errorMiddlewear';
 import { ValidationError } from './error/validationError';
+import path from 'path';
 
 class App {
   private app: Application;
@@ -16,11 +17,14 @@ class App {
     this.config();
     this.middlewares();
     this.routeMountings();
+    this.serveStaticFiles();
     this.errorMiddleware();
   }
 
   private config(): void {
-    this.app.use(morgan('dev'));
+    if((process.env.NODE_ENV as string) !== 'production') {
+      this.app.use(morgan('dev'));
+    }
     this.app.use(express.json());
   }
 
@@ -40,6 +44,12 @@ class App {
   private routeMountings(): void {
     this.app.use('/api/v1/tour', tourRouter);
     this.app.use('/api/v1/user', userRouter);
+  }
+
+  private serveStaticFiles(): void {
+    const staticFilesDir = path.join(__dirname, '../public');
+    console.log(staticFilesDir);
+    this.app.use(express.static(staticFilesDir));
   }
 
   private errorMiddleware(): void {

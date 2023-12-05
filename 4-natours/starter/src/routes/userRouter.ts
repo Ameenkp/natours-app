@@ -6,7 +6,6 @@ class UserRouter {
   private userController: UserController;
 
   constructor() {
-    console.log('UserRouter constructor executed');
     this.router = express.Router();
     this.userController = new UserController();
     this.config();

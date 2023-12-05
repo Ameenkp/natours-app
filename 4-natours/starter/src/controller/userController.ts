@@ -10,7 +10,6 @@ export class UserController {
   private commonMiddleware: CommonMiddleware;
 
   constructor() {
-    console.log('UserController constructor executed');
     this.userData = JSON.parse(fs.readFileSync(this.userDataPath, 'utf-8'));
     this.commonMiddleware = new CommonMiddleware();
   }

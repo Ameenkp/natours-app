@@ -14,7 +14,6 @@ export class TourController {
   private commonMiddleware: CommonMiddleware;
 
   constructor() {
-    console.log('TourController constructor executed');
     this.tours = JSON.parse(fs.readFileSync(dataFilePath, 'utf-8'));
     this.commonMiddleware = new CommonMiddleware();
   }
@@ -22,7 +21,7 @@ export class TourController {
   private async writeFileAsync() {
     try {
       await writeFilAsync(dataFilePath, JSON.stringify(this.tours));
-      console.log('success 🚀');
+      console.log('successfully wrote the file data/tours.json');
     } catch (error) {
       throw new Error((error as Error).message);
     }
@@ -56,7 +55,7 @@ export class TourController {
 
       await this.writeFileAsync();
 
-       res.status(201).json({
+      res.status(201).json({
         status: 'success',
         data: {
           tour: newTour,

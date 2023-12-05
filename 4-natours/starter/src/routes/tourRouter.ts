@@ -6,7 +6,6 @@ class TourRouter {
   private tourController: TourController;
 
   constructor() {
-    console.log('TourRouter constructor executed');
     this.router = express.Router();
     this.tourController = new TourController();
     this.config();
