@@ -9,6 +9,7 @@ export class ErrorHandler {
     });
     next();
   }
+
   handleValidationError(err: ValidationError, res: Response, next: NextFunction) {
     console.log(err.stack);
     res.status(err.status).json({

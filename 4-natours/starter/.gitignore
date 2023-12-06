@@ -5,6 +5,7 @@ node_modules/
 # TypeScript output directory
 dist/
 
+
 # IDE/Editor specific files
 .vscode/
 .idea/
@@ -30,3 +31,6 @@ yarn-error.log
 
 # Windows
 Thumbs.db
+
+# Ignore package-lock.json
+package-lock.json

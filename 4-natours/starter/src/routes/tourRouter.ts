@@ -1,12 +1,12 @@
 import express, { Router } from 'express';
 import { TourController } from '../controller/tourController';
 
-class TourRouter {
+export class TourRouter {
   private readonly router: Router;
+
   private tourController: TourController;
 
   constructor() {
-    console.log('TourRouter constructor executed');
     this.router = express.Router();
     this.tourController = new TourController();
     this.config();
@@ -40,5 +40,3 @@ class TourRouter {
     return this.router;
   }
 }
-
-export default new TourRouter().getRouter();

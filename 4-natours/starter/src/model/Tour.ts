@@ -37,20 +37,35 @@ export interface Tour {
 
 export class TourClass implements Tour {
   startLocation: StartLocation;
+
   ratingsAverage: number;
+
   ratingsQuantity: number;
+
   images: string[];
+
   startDates: string[];
+
   _id: string;
+
   name: string;
+
   duration: number;
+
   maxGroupSize: number;
+
   difficulty: string;
+
   guides: string[];
+
   price: number;
+
   summary: string;
+
   description: string;
+
   imageCover: string;
+
   locations: Location[];
 
   constructor(
@@ -69,7 +84,7 @@ export class TourClass implements Tour {
     summary: string,
     description: string,
     imageCover: string,
-    locations: Location[],
+    locations: Location[]
   ) {
     this.startLocation = startLocation;
     this.ratingsAverage = ratingsAverage;

@@ -7,8 +7,11 @@ export interface Review {
 
 export class ReviewClass implements Review {
   _id: number;
+
   name: string;
+
   rating: number;
+
   comment: string;
 
   constructor(_id: number, name: string, rating: number, comment: string) {
@@ -21,13 +24,13 @@ export class ReviewClass implements Review {
   /**
    * Creates a new ReviewClass instance.
    *
-   * @param {number} id - The ID of the review.
+   * @param {number} _id - The ID of the review.
    * @param {string} name - The name of the review.
    * @param {number} rating - The rating of the review.
    * @param {string} comment - The comment of the review.
    * @return {ReviewClass} The newly created ReviewClass instance.
    */
-  static create(_id: number, name: string, rating: number, comment: string) {
+  static create(_id: number, name: string, rating: number, comment: string): ReviewClass {
     return new ReviewClass(_id, name, rating, comment);
   }
 

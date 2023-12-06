@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import path from 'path';
-import { Tour } from '../model/Tour';
 import fs from 'fs';
 import { promisify } from 'util';
+import { Tour } from '../model/Tour';
 import { CommonMiddleware } from '../middlewear/baseMiddleware';
 import { ValidationError } from '../error/validationError';
 
@@ -11,10 +11,10 @@ const writeFilAsync = promisify(fs.writeFile);
 
 export class TourController {
   private tours: Tour[];
+
   private commonMiddleware: CommonMiddleware;
 
   constructor() {
-    console.log('TourController constructor executed');
     this.tours = JSON.parse(fs.readFileSync(dataFilePath, 'utf-8'));
     this.commonMiddleware = new CommonMiddleware();
   }
@@ -22,7 +22,7 @@ export class TourController {
   private async writeFileAsync() {
     try {
       await writeFilAsync(dataFilePath, JSON.stringify(this.tours));
-      console.log('success 🚀');
+      console.log('successfully wrote the file data/tours.json');
     } catch (error) {
       throw new Error((error as Error).message);
     }
@@ -51,12 +51,12 @@ export class TourController {
   async createTour(req: Request, res: Response, next: NextFunction) {
     try {
       const newId = this.tours[this.tours.length - 1]._id + 1;
-      const newTour = Object.assign({ _id: newId }, req.body);
+      const newTour = { _id: newId, ...req.body };
       this.tours.push(newTour);
 
       await this.writeFileAsync();
 
-       res.status(201).json({
+      res.status(201).json({
         status: 'success',
         data: {
           tour: newTour,
