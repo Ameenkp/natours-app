@@ -1,12 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
-import User from '../model/User';
+import { User } from '../model/User';
 import { CommonMiddleware } from '../middlewear/baseMiddleware';
 
 export class UserController {
   private userDataPath: string = path.join(__dirname, '../../dev-data/data/users.json');
+
   private userData: User[];
+
   private commonMiddleware: CommonMiddleware;
 
   constructor() {
@@ -40,7 +42,7 @@ export class UserController {
   }
 
   getUserById(req: Request, res: Response, next: NextFunction): void {
-    const user = this.userData.find((user) => user._id === req.params.id);
+    const user = this.userData.find((el) => el._id === req.params.id);
     res.status(200).json({
       status: 'success',
       data: {

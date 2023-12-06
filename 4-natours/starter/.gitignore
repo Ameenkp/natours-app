@@ -5,6 +5,7 @@ node_modules/
 # TypeScript output directory
 dist/
 
+
 # IDE/Editor specific files
 .vscode/
 .idea/

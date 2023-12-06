@@ -1,8 +1,9 @@
 import express, { Router } from 'express';
 import { UserController } from '../controller/userController';
 
-class UserRouter {
+export class UserRouter {
   private readonly router: Router;
+
   private userController: UserController;
 
   constructor() {
@@ -32,5 +33,3 @@ class UserRouter {
     return this.router;
   }
 }
-
-export default new UserRouter().getRouter();

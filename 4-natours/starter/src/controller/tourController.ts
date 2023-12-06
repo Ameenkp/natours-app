@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import path from 'path';
-import { Tour } from '../model/Tour';
 import fs from 'fs';
 import { promisify } from 'util';
+import { Tour } from '../model/Tour';
 import { CommonMiddleware } from '../middlewear/baseMiddleware';
 import { ValidationError } from '../error/validationError';
 
@@ -11,6 +11,7 @@ const writeFilAsync = promisify(fs.writeFile);
 
 export class TourController {
   private tours: Tour[];
+
   private commonMiddleware: CommonMiddleware;
 
   constructor() {
@@ -50,7 +51,7 @@ export class TourController {
   async createTour(req: Request, res: Response, next: NextFunction) {
     try {
       const newId = this.tours[this.tours.length - 1]._id + 1;
-      const newTour = Object.assign({ _id: newId }, req.body);
+      const newTour = { _id: newId, ...req.body };
       this.tours.push(newTour);
 
       await this.writeFileAsync();

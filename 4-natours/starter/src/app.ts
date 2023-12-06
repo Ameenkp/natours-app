@@ -1,17 +1,17 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import morgan from 'morgan';
-import tourRouter from './routes/tourRouter';
-import userRouter from './routes/userRouter';
+import path from 'path';
 import { ErrorHandler } from './middlewear/errorMiddlewear';
 import { ValidationError } from './error/validationError';
-import path from 'path';
+import { TourRouter } from './routes/tourRouter';
+import { UserRouter } from './routes/userRouter';
 
-class App {
+export class App {
   private app: Application;
+
   private errorHandler: ErrorHandler;
 
   constructor() {
-    console.log('Express app has been created 🎊');
     this.app = express();
     this.errorHandler = new ErrorHandler();
     this.config();
@@ -22,7 +22,7 @@ class App {
   }
 
   private config(): void {
-    if((process.env.NODE_ENV as string) !== 'production') {
+    if ((process.env.NODE_ENV as string) !== 'production') {
       this.app.use(morgan('dev'));
     }
     this.app.use(express.json());
@@ -42,13 +42,12 @@ class App {
   }
 
   private routeMountings(): void {
-    this.app.use('/api/v1/tour', tourRouter);
-    this.app.use('/api/v1/user', userRouter);
+    this.app.use('/api/v1/tour', new TourRouter().getRouter());
+    this.app.use('/api/v1/user', new UserRouter().getRouter());
   }
 
   private serveStaticFiles(): void {
     const staticFilesDir = path.join(__dirname, '../public');
-    console.log(staticFilesDir);
     this.app.use(express.static(staticFilesDir));
   }
 
@@ -67,5 +66,3 @@ class App {
     });
   }
 }
-
-export default App;

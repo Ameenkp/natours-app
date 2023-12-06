@@ -1,4 +1,4 @@
-interface User {
+export interface User {
   _id: string;
   name: string;
   email: string;
@@ -7,5 +7,3 @@ interface User {
   active: boolean;
   photo: string;
 }
-
-export default User;
