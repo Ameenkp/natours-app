@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as a parent image
-FROM node:17.6.0-alpine
+FROM node:20.10.0-alpine
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -20,5 +20,5 @@ RUN npm run build
 EXPOSE 3000
 
 # Command to run your application
-CMD ["npm", "run", "start-dev"]
+CMD ["npm", "run", "start-dev-server"]
 

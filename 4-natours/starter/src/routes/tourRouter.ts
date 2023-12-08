@@ -13,16 +13,11 @@ export class TourRouter {
   }
 
   private config(): void {
-    this.router.param('id', (req, res, next, val) => {
-      TourController.validateTourParamId(req, next, val);
-    });
-
     this.router
       .route('/')
       .get((req, res, next) => TourController.getAllTours(req, res, next))
       .post(async (req, res, next) => {
         try {
-          TourController.validateTour(req, res, next);
           await TourController.createTour(req, res, next);
         } catch (error) {
           next(error);

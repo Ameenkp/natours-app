@@ -21,8 +21,7 @@ export class Tour {
 
   static async createTour(data: Partial<TourDocument>): Promise<TourDocument> {
     try {
-      const tour = new Tour.TourModel(data);
-      return await tour.save();
+      return await this.TourModel.create(data);
     } catch (error) {
       throw new Error(`Error creating tour: ${(error as Error).message}`);
     }
@@ -36,7 +35,7 @@ export class Tour {
     }
   }
 
-  async updateTourById(id: string, update: Partial<TourDocument>): Promise<TourDocument | null> {
+  static async updateTourById(id: string, update: Partial<TourDocument>): Promise<TourDocument | null> {
     try {
       return await Tour.TourModel.findByIdAndUpdate(id, update, { new: true });
     } catch (error) {
@@ -61,7 +60,7 @@ export class Tour {
   }
 
   static async checkAndValidateTourId(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id) || !(await Tour.getTourById(id)) === null) {
+    if (!mongoose.Types.ObjectId.isValid(id) || (await Tour.getTourById(id)) === null) {
       throw new Error('Invalid Tour ID');
     }
   }

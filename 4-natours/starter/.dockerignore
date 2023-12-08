@@ -1,0 +1,8 @@
+# Ignore unnecessary files and directories
+node_modules
+dist
+__tests__
+coverage
+.git
+.gitignore
+package-lock.json
