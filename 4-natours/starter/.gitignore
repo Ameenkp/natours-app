@@ -17,6 +17,7 @@ dist/
 
 # Environment variables file
 .env
+.env.prod
 
 # Logs
 logs
