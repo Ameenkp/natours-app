@@ -15,7 +15,9 @@ export class TourRouter {
   private config(): void {
     this.router
       .route('/')
-      .get((req, res, next) => TourController.getAllTours(req, res, next))
+      .get((req, res, next) => {
+        TourController.getAllTours(req, res, next);
+      })
       .post(async (req, res, next) => {
         try {
           await TourController.createTour(req, res, next);
@@ -23,6 +25,17 @@ export class TourRouter {
           next(error);
         }
       });
+
+    this.router.route('/get-all-with-filter').get(async (req, res, next) => {
+      try {
+        await this.tourController.getAllToursWithFilter(req, res, next);
+      } catch (error) {
+        next(error);
+      }
+    });
+    this.router.route('/add-data').get(async (req, res, next) => {
+      await this.tourController.addTourDataFromJson(req, res, next);
+    });
 
     this.router
       .route('/:id')

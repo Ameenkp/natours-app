@@ -8,7 +8,19 @@ export class TourController {
       if (allTours.length === 0) {
         return res.status(404).json({ status: 404, message: 'No tours found' });
       }
-      return res.status(200).json({ data: allTours });
+      return res.status(200).json({ status: 'success', results: allTours.length, data: allTours });
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  async getAllToursWithFilter(req: Request, res: Response, next: NextFunction) {
+    try {
+      const allTours = await Tour.getAllToursWithFilter(req.body);
+      if (allTours.length === 0) {
+        return res.status(404).json({ status: 404, message: 'No tours found' });
+      }
+      return res.status(200).json({ status: 'success', results: allTours.length, data: allTours });
     } catch (error) {
       return next(error);
     }
@@ -18,7 +30,7 @@ export class TourController {
     try {
       const newTourData: Partial<TourDocument> = req.body;
       const createdTour = await Tour.createTour(newTourData);
-      res.status(201).json({ data: createdTour });
+      res.status(201).json({ status: 'success', data: createdTour });
     } catch (error) {
       next(error);
     }
@@ -37,22 +49,38 @@ export class TourController {
     }
   }
 
-  async updateTourById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async updateTourById(req: Request, res: Response, next: NextFunction) {
     try {
       const createdTour = await Tour.updateTourById(req.params.id, req.body);
-      res.status(201).json({ data: createdTour });
+      return createdTour === null
+        ? res.status(404).json({ status: 'fail', message: 'No tour found' })
+        : res.status(200).json({ status: 'success', data: createdTour });
     } catch (error) {
-      next(error);
+      return next(error);
     }
   }
 
-  async deleteTourById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async deleteTourById(req: Request, res: Response, next: NextFunction) {
     try {
       const tour: Tour = new Tour();
-      await tour.deleteTourById(req.params.id);
-      res.status(204).json({ status: 'success', data: null });
+      const deletedTour = await tour.deleteTourById(req.params.id);
+      return deletedTour === null
+        ? res.status(404).json({ status: 'fail', message: 'No tour found' })
+        : res.status(204).json({ status: 'success', data: null });
     } catch (error) {
-      next(error);
+      return next(error);
+    }
+  }
+
+  async addTourDataFromJson(req: Request, res: Response, next: NextFunction) {
+    try {
+      const savedData = await Tour.addTourDataFromJson();
+
+      return savedData === null
+        ? res.status(404).json({ status: 'fail', message: 'No tour found' })
+        : res.status(200).json({ status: 'success', data: savedData });
+    } catch (error) {
+      return next(error);
     }
   }
 }

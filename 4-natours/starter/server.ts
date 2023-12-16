@@ -7,14 +7,19 @@ class Server {
   private app: App;
 
   constructor() {
-    dotenv.config({ path: '.env' });
+    dotenv.config({ path: '.env.prod' });
     this.app = new App();
   }
 
   private async connectDB() {
     try {
-      await new DatabaseConfig().connectToDB();
-      console.log('Connected to the database');
+      if (process.env.NODE_ENV !== 'production') {
+        await new DatabaseConfig().connectToLocalDB();
+        console.log('Connected to the local database');
+      } else {
+        await new DatabaseConfig().connectToDB();
+        console.log('Connected to the database');
+      }
     } catch (error) {
       console.error('Error connecting to the database:', (error as Error).message);
       process.exit(1);
