@@ -13,27 +13,39 @@ export class TourRouter {
   }
 
   private config(): void {
-    this.router.param('id', (req, res, next, val) => {
-      this.tourController.checkId(req, res, next, val);
-    });
-
     this.router
       .route('/')
-      .get((req, res, next) => this.tourController.getAllTour(req, res, next))
+      .get((req, res, next) => {
+        TourController.getAllTours(req, res, next);
+      })
       .post(async (req, res, next) => {
         try {
-          this.tourController.validateTour(req, res, next);
-          await this.tourController.createTour(req, res, next);
+          await TourController.createTour(req, res, next);
         } catch (error) {
           next(error);
         }
       });
 
+    this.router.route('/get-all-with-filter').get(async (req, res, next) => {
+      try {
+        await this.tourController.getAllToursWithFilter(req, res, next);
+      } catch (error) {
+        next(error);
+      }
+    });
+    this.router.route('/add-data').get(async (req, res, next) => {
+      await this.tourController.addTourDataFromJson(req, res, next);
+    });
+
     this.router
       .route('/:id')
-      .get((req, res, next) => this.tourController.getTourById(req, res, next))
-      .patch((req, res, next) => this.tourController.updateTourById(req, res, next))
-      .delete((req, res, next) => this.tourController.deleteTourById(req, res, next));
+      .get((req, res, next) => TourController.getTourById(req, res, next))
+      .patch(async (req, res, next) => {
+        await this.tourController.updateTourById(req, res, next);
+      })
+      .delete(async (req, res, next) => {
+        await this.tourController.deleteTourById(req, res, next);
+      });
   }
 
   public getRouter(): Router {
