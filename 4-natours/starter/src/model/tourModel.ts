@@ -1,4 +1,5 @@
-import mongoose, { Document, Error, Schema } from 'mongoose';
+import mongoose, { Document, Error, FilterQuery, Schema } from 'mongoose';
+import { Request } from 'express';
 import path from 'path';
 import { promisify } from 'util';
 import fs from 'fs';
@@ -89,12 +90,40 @@ export class Tour {
     }
   }
 
-  static async getAllToursWithFilter(tourDocument: Partial<TourDocument>): Promise<TourDocument[]> {
+  static async getAllToursWithFilter(queryParameters: Request['query']): Promise<TourDocument[]> {
     try {
-      return await Tour.TourModel.find({
-        difficulty: { $eq: tourDocument.difficulty },
-        price: { $gt: tourDocument.price },
+      const queryObj = { ...queryParameters };
+      console.log(queryObj);
+      const { page, pageSize, sort, fields, ...nestedParams } = queryParameters;
+
+      // Validate and parse query parameters
+      const parsedPage = parseInt(page as string, 10) || 1;
+      const parsedPageSize = parseInt(pageSize as string, 10) || 10;
+
+      // Price range filtering
+      const filterOptions: FilterQuery<TourDocument> = {};
+      Object.entries(nestedParams).forEach(([key, value]) => {
+        if (typeof value === 'object') {
+          filterOptions[key] = {};
+          Object.entries(value).forEach(([nestedKey, nestedValue]) => {
+            filterOptions[key][`$${nestedKey}`] = nestedValue;
+          });
+        } else {
+          filterOptions[key] = value;
+        }
       });
+
+      const selectedFields = fields ? (<string>fields).split(',').join(' ') : '-__v';
+
+      const sortOrder = sort ? (<string>sort).split(',').join(' ') : '-createdAt';
+      // MongoDB query
+      const query = Tour.TourModel.find(filterOptions)
+        .skip((parsedPage - 1) * parsedPageSize)
+        .limit(parsedPageSize)
+        .sort(sortOrder)
+        .select(selectedFields);
+
+      return await query.exec();
     } catch (error) {
       throw new Error(`Error getting all tours: ${(error as Error).message}`);
     }

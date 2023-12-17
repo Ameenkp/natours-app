@@ -16,7 +16,7 @@ export class TourController {
 
   async getAllToursWithFilter(req: Request, res: Response, next: NextFunction) {
     try {
-      const allTours = await Tour.getAllToursWithFilter(req.body);
+      const allTours = await Tour.getAllToursWithFilter(req.query);
       if (allTours.length === 0) {
         return res.status(404).json({ status: 404, message: 'No tours found' });
       }
