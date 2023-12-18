@@ -22,39 +22,57 @@ export interface TourDocument extends Document {
 }
 
 export class Tour {
-  private static tourSchema: Schema<TourDocument> = new Schema<TourDocument>({
-    name: {
-      type: String,
-      required: [true, 'A tour must have a name'],
-      unique: true,
-      trim: true,
+  private static tourSchema: Schema<TourDocument> = new Schema<TourDocument>(
+    {
+      name: {
+        type: String,
+        required: [true, 'A tour must have a name'],
+        unique: true,
+        trim: true,
+      },
+      duration: { type: Number, required: [true, 'A tour must have a duration'] },
+      maxGroupSize: {
+        type: Number,
+        required: [true, 'A tour must have a group size'],
+      },
+      difficulty: {
+        type: String,
+        required: [true, 'A tour must have a difficulty'],
+      },
+      ratingsAverage: { type: Number, default: 4.5 },
+      ratingsQuantity: { type: Number, default: 0 },
+      price: { type: Number, required: [true, 'A tour must have a price'] },
+      priceDiscount: { type: Number, default: 0 },
+      summary: {
+        type: String,
+        trim: true,
+        required: [true, 'A tour must have a summary'],
+      },
+      imageCover: {
+        type: String,
+        required: [true, 'A tour must have a cover image'],
+      },
+      images: [String],
+      createdAt: { type: Date, default: Date.now(), select: false },
+      startDates: [Date],
     },
-    duration: { type: Number, required: [true, 'A tour must have a duration'] },
-    maxGroupSize: {
-      type: Number,
-      required: [true, 'A tour must have a group size'],
-    },
-    difficulty: {
-      type: String,
-      required: [true, 'A tour must have a difficulty'],
-    },
-    ratingsAverage: { type: Number, default: 4.5 },
-    ratingsQuantity: { type: Number, default: 0 },
-    price: { type: Number, required: [true, 'A tour must have a price'] },
-    priceDiscount: { type: Number, default: 0 },
-    summary: {
-      type: String,
-      trim: true,
-      required: [true, 'A tour must have a summary'],
-    },
-    imageCover: {
-      type: String,
-      required: [true, 'A tour must have a cover image'],
-    },
-    images: [String],
-    createdAt: { type: Date, default: Date.now() },
-    startDates: [Date],
-  });
+    {
+      toJSON: { virtuals: true },
+      toObject: { virtuals: true },
+    }
+  );
+
+  private static priceTotalVirtualField() {
+    Tour.tourSchema.virtual('priceTotal').get(function calculatePriceTotal() {
+      return this.price - (this.price * this.priceDiscount) / 100;
+    });
+  }
+
+  private static durationWeeksVirtualField(): void {
+    Tour.tourSchema.virtual('durationWeeks').get(function calculateDurationWeeks() {
+      return Math.round((this.duration / 7) * 100) / 100;
+    });
+  }
 
   private static TourModel = mongoose.model<TourDocument>('Tour', Tour.tourSchema);
 
@@ -92,13 +110,11 @@ export class Tour {
 
   static async getAllToursWithFilter(queryParameters: Request['query']): Promise<TourDocument[]> {
     try {
-      const queryObj = { ...queryParameters };
-      console.log(queryObj);
-      const { page, pageSize, sort, fields, ...nestedParams } = queryParameters;
+      Tour.durationWeeksVirtualField();
+      const { page, limit, sort, fields, ...nestedParams } = queryParameters;
 
       // Validate and parse query parameters
-      const parsedPage = parseInt(page as string, 10) || 1;
-      const parsedPageSize = parseInt(pageSize as string, 10) || 10;
+      const skip = (Number(page) - 1) * Number(limit) || 0;
 
       // Price range filtering
       const filterOptions: FilterQuery<TourDocument> = {};
@@ -118,14 +134,47 @@ export class Tour {
       const sortOrder = sort ? (<string>sort).split(',').join(' ') : '-createdAt';
       // MongoDB query
       const query = Tour.TourModel.find(filterOptions)
-        .skip((parsedPage - 1) * parsedPageSize)
-        .limit(parsedPageSize)
+        .skip(skip)
+        .limit(Number(limit))
         .sort(sortOrder)
         .select(selectedFields);
 
       return await query.exec();
     } catch (error) {
       throw new Error(`Error getting all tours: ${(error as Error).message}`);
+    }
+  }
+
+  static async testAggregate(): Promise<TourDocument[]> {
+    try {
+      return await Tour.TourModel.aggregate([
+        { $match: { ratingsAverage: { $gte: 4.5 } } },
+        {
+          $group: {
+            _id: { $toUpper: '$difficulty' },
+            numTours: { $sum: 1 },
+            totalPrice: { $sum: '$price' },
+            averagePrice: { $avg: '$price' },
+            averageRatings: { $avg: '$ratingsAverage' },
+            minPrice: { $min: '$price' },
+            maxPrice: { $max: '$price' },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            totalPrice: 1,
+            numTours: 1,
+            averagePrice: { $round: ['$averagePrice', 2] },
+            minPrice: 1,
+            maxPrice: 1,
+            averageRatings: { $round: ['$averageRatings', 2] },
+          },
+        },
+        { $sort: { totalPrice: 1 } },
+      ]);
+    } catch (error) {
+      throw new Error(`Error getting tours using aggregate: ${(error as Error).message}`);
     }
   }
 
@@ -152,6 +201,51 @@ export class Tour {
       console.log(documents);
     } catch (error) {
       throw new Error(`Error adding tour data from JSON: ${(error as Error).message}`);
+    }
+  }
+
+  static async showMonthlyPlan(year: string) {
+    try {
+      return await Tour.TourModel.aggregate([
+        {
+          $unwind: '$startDates',
+        },
+        {
+          $match: {
+            startDates: {
+              $gte: new Date(`${year}-01-01`),
+              $lte: new Date(`${year}-12-31`),
+            },
+          },
+        },
+        {
+          $group: {
+            _id: { $month: '$startDates' },
+            numToursStarts: { $sum: 1 },
+            tours: { $push: '$name' },
+            averagePrice: { $avg: '$price' },
+            averageRating: { $avg: '$ratingsAverage' },
+          },
+        },
+        {
+          $addFields: { month: '$_id' },
+        },
+        {
+          $project: {
+            _id: 0,
+            averagePrice: { $round: ['$averagePrice', 2] },
+            averageRating: { $round: ['$averageRating', 2] },
+            numToursStarts: 1,
+            tours: 1,
+            month: 1,
+          },
+        },
+        {
+          $sort: { numToursStarts: -1 },
+        },
+      ]);
+    } catch (error) {
+      throw new Error(`Error getting monthly plan: ${(error as Error).message}`);
     }
   }
 }

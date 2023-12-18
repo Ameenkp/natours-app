@@ -83,4 +83,29 @@ export class TourController {
       return next(error);
     }
   }
+
+  aliasTopTours(req: Request, res: Response, next: NextFunction) {
+    req.query.limit = '5';
+    req.query.sort = '-ratingsAverage,price';
+    req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+    next();
+  }
+
+  static async testTourStats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const tourDocuments = await Tour.testAggregate();
+      res.status(200).json({ status: 'success', data: tourDocuments });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async showMonthlyPlan(req: Request, res: Response, next: NextFunction) {
+    try {
+      const tourDocuments = await Tour.showMonthlyPlan(req.params.year);
+      res.status(200).json({ status: 'success', data: { plan: tourDocuments } });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
