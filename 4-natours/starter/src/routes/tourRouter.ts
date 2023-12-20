@@ -37,7 +37,7 @@ export class TourRouter {
     this.router
       .route('/')
       .get(async (req, res, next) => {
-        await this.tourController.getAllToursWithFilter(req, res, next);
+        await TourController.getAllTours(req, res, next);
       })
       .post(async (req, res, next) => {
         try {
