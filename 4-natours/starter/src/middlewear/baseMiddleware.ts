@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { Tour } from '../model/Tour';
-import { User } from '../model/User';
+import { User } from '../model/userModel';
 
 export class CommonMiddleware {
   checkId(req: Request, res: Response, next: NextFunction, data: Tour[] | User[], paramName: string, val: string) {

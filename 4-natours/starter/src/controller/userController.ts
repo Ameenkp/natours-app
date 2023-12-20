@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
-import { User } from '../model/User';
 import { CommonMiddleware } from '../middlewear/baseMiddleware';
+import { createUser, getAllUser, getAllUserWithFilter, testAggregate, User } from '../model/userModel';
 
 export class UserController {
   private userDataPath: string = path.join(__dirname, '../../dev-data/data/users.json');
@@ -16,17 +16,14 @@ export class UserController {
     this.commonMiddleware = new CommonMiddleware();
   }
 
-  checkId(req: Request, res: Response, next: NextFunction, val: string): void {
-    this.commonMiddleware.checkId(req, res, next, this.userData, 'user', val);
-  }
-
-  getAllUser(req: Request, res: Response, next: NextFunction): void {
+  async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      res.status(200).json({
+      const userData: Partial<User> = req.body;
+      const createdUser = await createUser(userData);
+      res.status(201).json({
         status: 'success',
-        results: this.userData.length,
         data: {
-          users: this.userData,
+          user: createdUser,
         },
       });
     } catch (error) {
@@ -34,11 +31,52 @@ export class UserController {
     }
   }
 
-  createUser(req: Request, res: Response, next: NextFunction): void {
-    res.status(500).json({
-      status: 'error',
-      message: 'This route is not yet defined!',
-    });
+  async getAllUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const allUsers = await getAllUser();
+      res.status(200).json({
+        status: 'success',
+        results: allUsers.length,
+        data: {
+          users: allUsers,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAllUserWithFilter(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const allUsers = await getAllUserWithFilter(req.query);
+      res.status(200).json({
+        status: 'success',
+        results: allUsers.length,
+        data: {
+          users: allUsers,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async testAggregateForUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const allUsers = await testAggregate();
+      res.status(200).json({
+        status: 'success',
+        data: {
+          users: allUsers,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  checkId(req: Request, res: Response, next: NextFunction, val: string): void {
+    this.commonMiddleware.checkId(req, res, next, this.userData, 'user', val);
   }
 
   getUserById(req: Request, res: Response, next: NextFunction): void {
