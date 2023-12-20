@@ -13,14 +13,21 @@ export class UserRouter {
   }
 
   private config(): void {
-    this.router.param('id', (req, res, next, val) => {
-      this.userController.checkId(req, res, next, val);
+    this.router.route('/test-aggregate').get(async (req, res, next) => {
+      await this.userController.testAggregateForUser(req, res, next);
     });
-
     this.router
       .route('/')
-      .get((req, res, next) => this.userController.getAllUser(req, res, next))
-      .post((req, res, next) => this.userController.createUser(req, res, next));
+      .get(async (req, res, next) => {
+        try {
+          await this.userController.getAllUserWithFilter(req, res, next);
+        } catch (error) {
+          next(error);
+        }
+      })
+      .post(async (req, res, next) => {
+        await this.userController.createUser(req, res, next);
+      });
 
     this.router
       .route('/:id')

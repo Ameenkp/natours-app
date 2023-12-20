@@ -1,4 +1,4 @@
-import mongoose, { Aggregate, Document, Error, FilterQuery, Query, Schema } from "mongoose";
+import mongoose, { Document, Error, FilterQuery, Query, Schema } from 'mongoose';
 import { Request } from 'express';
 import path from 'path';
 import { promisify } from 'util';
@@ -90,17 +90,17 @@ tourSchema.pre('aggregate', function preAggregate(next) {
   next();
 });
 
-function priceTotalVirtualField() {
-  tourSchema.virtual('priceTotal').get(function calculatePriceTotal() {
-    return this.price - (this.price * this.priceDiscount) / 100;
-  });
-}
-
-function durationWeeksVirtualField(): void {
-  tourSchema.virtual('durationWeeks').get(function calculateDurationWeeks() {
-    return Math.round((this.duration / 7) * 100) / 100;
-  });
-}
+// function priceTotalVirtualField() {
+//   tourSchema.virtual('priceTotal').get(function calculatePriceTotal() {
+//     return this.price - (this.price * this.priceDiscount) / 100;
+//   });
+// }
+//
+// function durationWeeksVirtualField(): void {
+//   tourSchema.virtual('durationWeeks').get(function calculateDurationWeeks() {
+//     return Math.round((this.duration / 7) * 100) / 100;
+//   });
+// }
 
 const TourModel = mongoose.model<TourDocument>('Tour', tourSchema);
 
