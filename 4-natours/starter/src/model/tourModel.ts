@@ -1,9 +1,10 @@
-import mongoose, { Document, Error, FilterQuery, Query, Schema, UpdateQuery } from "mongoose";
+import mongoose, { Document, Error, Query, Schema } from 'mongoose';
 import { Request } from 'express';
 import path from 'path';
 import { promisify } from 'util';
 import fs from 'fs';
 import slugify from 'slugify';
+import { APIFeatures } from '../utils/apiFeatures';
 
 // eslint-disable-next-line no-shadow
 export enum Difficulty {
@@ -64,7 +65,11 @@ const tourSchema: Schema<TourDocument> = new Schema<TourDocument>(
       max: [5, 'Ratings quantity can not be more than 5'],
     },
     ratingsQuantity: { type: Number, default: 0 },
-    price: { type: Number, required: [true, 'A tour must have a price'], min: [0, 'Price can not be less than 0'] },
+    price: {
+      type: Number,
+      required: [true, 'A tour must have a price'],
+      min: [0, 'Price can not be less than 0'],
+    },
     priceDiscount: {
       type: Number,
       default: 0,
@@ -84,7 +89,8 @@ const tourSchema: Schema<TourDocument> = new Schema<TourDocument>(
       type: String,
       required: [true, 'A tour must have a cover image'],
       validate: {
-        validator: (imageCover: string) => imageCover.includes('.jpg') || imageCover.includes('.png'),
+        validator: (imageCover: string) =>
+          imageCover.includes('.jpg') || imageCover.includes('.png'),
       },
     },
     images: [String],
@@ -132,7 +138,7 @@ tourSchema.pre('aggregate', function preAggregate(next) {
 //   });
 // }
 
-const TourModel = mongoose.model<TourDocument>('Tour', tourSchema);
+export const TourModel = mongoose.model<TourDocument>('Tour', tourSchema);
 
 export async function createTour(data: Partial<TourDocument>): Promise<TourDocument> {
   try {
@@ -150,7 +156,10 @@ export async function getTourById(id: string): Promise<TourDocument | null> {
   }
 }
 
-export async function updateTourById(id: string, update: Partial<TourDocument>): Promise<TourDocument | null> {
+export async function updateTourById(
+  id: string,
+  update: Partial<TourDocument>
+): Promise<TourDocument | null> {
   try {
     return await TourModel.findByIdAndUpdate(id, update, { new: true, runValidators: true });
   } catch (error) {
@@ -166,33 +175,17 @@ export async function getAllTour(): Promise<TourDocument[]> {
   }
 }
 
-export async function getAllTourWithFilter(queryParameters: Request['query']): Promise<TourDocument[]> {
+export async function getAllTourWithFilter(
+  queryParameters: Request['query']
+): Promise<TourDocument[]> {
   try {
-    const { page, limit, sort, fields, ...nestedParams } = queryParameters;
+    const query = new APIFeatures(TourModel.find(), queryParameters)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
 
-    // Validate and parse query parameters
-    const skip = (Number(page) - 1) * Number(limit) || 0;
-
-    // Price range filtering
-    const filterOptions: FilterQuery<TourDocument> = {};
-    Object.entries(nestedParams).forEach(([key, value]) => {
-      if (typeof value === 'object') {
-        filterOptions[key] = {};
-        Object.entries(value).forEach(([nestedKey, nestedValue]) => {
-          filterOptions[key][`$${nestedKey}`] = nestedValue;
-        });
-      } else {
-        filterOptions[key] = value;
-      }
-    });
-
-    const selectedFields = fields ? (<string>fields).split(',').join(' ') : '-__v';
-
-    const sortOrder = sort ? (<string>sort).split(',').join(' ') : '-createdAt';
-    // MongoDB query
-    const query = TourModel.find(filterOptions).skip(skip).limit(Number(limit)).sort(sortOrder).select(selectedFields);
-
-    return await query.exec();
+    return await query.execute();
   } catch (error) {
     throw new Error(`Error getting all tours: ${(error as Error).message}`);
   }
@@ -251,7 +244,6 @@ export async function addTourDataFromJson() {
     const data: TourDocument[] = JSON.parse(await promisify(fs.readFile)(s, 'utf-8'));
     await TourModel.deleteMany();
     const documents = await TourModel.create(data);
-    console.log(documents);
   } catch (error) {
     throw new Error(`Error adding tour data from JSON: ${(error as Error).message}`);
   }
