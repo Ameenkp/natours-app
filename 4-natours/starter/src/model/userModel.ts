@@ -1,5 +1,6 @@
 import mongoose, { Document, Error, FilterQuery, Schema } from 'mongoose';
 import { Request } from 'express';
+import validator from 'validator';
 
 export interface User extends Document {
   name: string;
@@ -22,15 +23,27 @@ const userSchema = new Schema<User>({
     required: [true, 'A tour must have a email'],
     unique: true,
     trim: true,
+    validate: [validator.isEmail, 'A tour must have a valid email'],
   },
   password: {
     type: String,
     required: [true, 'A tour must have a password'],
     trim: true,
+    select: false,
+    minlength: 8,
+    validate: {
+      validator(value: string) {
+        return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
+      },
+      message: 'Please add a valid password',
+    },
   },
   role: {
     type: String,
-    enum: ['user', 'guide', 'practitioner', 'admin'],
+    enum: {
+      values: ['user', 'guide', 'practitioner', 'admin'],
+      message: 'Please add a valid role',
+    },
     default: 'user',
   },
   active: {

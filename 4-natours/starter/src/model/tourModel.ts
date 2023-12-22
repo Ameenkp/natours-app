@@ -1,9 +1,16 @@
-import mongoose, { Document, Error, FilterQuery, Query, Schema } from 'mongoose';
+import mongoose, { Document, Error, FilterQuery, Query, Schema, UpdateQuery } from "mongoose";
 import { Request } from 'express';
 import path from 'path';
 import { promisify } from 'util';
 import fs from 'fs';
 import slugify from 'slugify';
+
+// eslint-disable-next-line no-shadow
+export enum Difficulty {
+  EASY = 'easy',
+  MEDIUM = 'medium',
+  HARD = 'hard',
+}
 
 export interface TourDocument extends Document {
   name: string;
@@ -11,7 +18,7 @@ export interface TourDocument extends Document {
   secretTour: boolean;
   duration: number;
   maxGroupSize: number;
-  difficulty: string;
+  difficulty: Difficulty;
   ratingsAverage: number;
   ratingsQuantity: number;
   price: number;
@@ -31,6 +38,8 @@ const tourSchema: Schema<TourDocument> = new Schema<TourDocument>(
       required: [true, 'A tour must have a name'],
       unique: true,
       trim: true,
+      maxlength: [40, 'A tour name must have less or equal than 40 characters'],
+      minlength: [10, 'A tour name must have more or equal than 10 characters'],
     },
     slug: { type: String },
     secretTour: { type: Boolean, default: false },
@@ -40,13 +49,32 @@ const tourSchema: Schema<TourDocument> = new Schema<TourDocument>(
       required: [true, 'A tour must have a group size'],
     },
     difficulty: {
+      enum: {
+        values: [Difficulty.EASY, Difficulty.MEDIUM, Difficulty.HARD],
+        message: 'Difficulty is either: easy, medium or hard',
+      },
       type: String,
+      default: Difficulty.MEDIUM,
       required: [true, 'A tour must have a difficulty'],
     },
-    ratingsAverage: { type: Number, default: 4.5 },
+    ratingsAverage: {
+      type: Number,
+      default: 4.5,
+      min: [0, 'Ratings quantity can not be less than 0'],
+      max: [5, 'Ratings quantity can not be more than 5'],
+    },
     ratingsQuantity: { type: Number, default: 0 },
-    price: { type: Number, required: [true, 'A tour must have a price'] },
-    priceDiscount: { type: Number, default: 0 },
+    price: { type: Number, required: [true, 'A tour must have a price'], min: [0, 'Price can not be less than 0'] },
+    priceDiscount: {
+      type: Number,
+      default: 0,
+      validate: {
+        validator(this: TourDocument, val: number) {
+          return val < this.price;
+        },
+        message: 'Discount price ({VALUE}) should be below actual price',
+      },
+    },
     summary: {
       type: String,
       trim: true,
@@ -55,6 +83,9 @@ const tourSchema: Schema<TourDocument> = new Schema<TourDocument>(
     imageCover: {
       type: String,
       required: [true, 'A tour must have a cover image'],
+      validate: {
+        validator: (imageCover: string) => imageCover.includes('.jpg') || imageCover.includes('.png'),
+      },
     },
     images: [String],
     createdAt: { type: Date, default: Date.now(), select: false },
@@ -67,7 +98,7 @@ const tourSchema: Schema<TourDocument> = new Schema<TourDocument>(
 );
 
 /// DOCUMENT MIDDLEWARE ///////////////////////
-tourSchema.pre('save', function preSave(next) {
+tourSchema.pre('save', function preSave(this: TourDocument, next) {
   this.slug = slugify(this.name, {
     lower: true,
     strict: true,
@@ -78,7 +109,6 @@ tourSchema.pre('save', function preSave(next) {
 /// QUERY MIDDLEWARE ///////////////////////
 tourSchema.pre(/^find/, function preFind(this: Query<TourDocument | unknown, TourDocument>, next) {
   console.log(this);
-  this.find({ secretTour: { $ne: true } });
   next();
 });
 
@@ -122,7 +152,7 @@ export async function getTourById(id: string): Promise<TourDocument | null> {
 
 export async function updateTourById(id: string, update: Partial<TourDocument>): Promise<TourDocument | null> {
   try {
-    return await TourModel.findByIdAndUpdate(id, update, { new: true });
+    return await TourModel.findByIdAndUpdate(id, update, { new: true, runValidators: true });
   } catch (error) {
     throw new Error(`Error getting tour by ID: ${(error as Error).message}`);
   }
