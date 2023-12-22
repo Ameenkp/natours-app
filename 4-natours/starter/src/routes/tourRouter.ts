@@ -26,6 +26,9 @@ export class TourRouter {
       }
     );
 
+    this.router.route('/adv-filter').get(async (req, res, next) => {
+      await this.tourController.getAllToursWithFilter(req, res, next);
+    });
     this.router.route('/test-stats').get(async (req, res, next) => {
       await TourController.testTourStats(req, res, next);
     });

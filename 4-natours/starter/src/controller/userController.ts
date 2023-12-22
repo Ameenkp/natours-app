@@ -2,7 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
 import { CommonMiddleware } from '../middlewear/baseMiddleware';
-import { createUser, getAllUser, getAllUserWithFilter, testAggregate, User } from '../model/userModel';
+import {
+  createUser,
+  getAllUser,
+  getAllUserWithFilter,
+  testAggregate,
+  User,
+} from '../model/userModel';
 
 export class UserController {
   private userDataPath: string = path.join(__dirname, '../../dev-data/data/users.json');

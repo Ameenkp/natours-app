@@ -88,7 +88,12 @@ export async function getAllUserWithFilter(queryParameters: Request['query']) {
     console.log(nestedParams);
     console.log(filterOptions);
 
-    const query = userModel.find().skip(skip).limit(Number(limit)).sort(sortOrder).select(selectFields);
+    const query = userModel
+      .find()
+      .skip(skip)
+      .limit(Number(limit))
+      .sort(sortOrder)
+      .select(selectFields);
 
     return await query;
   } catch (error) {
